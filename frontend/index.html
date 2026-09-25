@@ -153,17 +153,34 @@
       color: #50fa7b;
     }
 
-    /* Bottom Status Bar */
     footer {
       height: 24px;
       background: #191a21;
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color, #383a4c);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 12px;
       font-size: 11px;
-      color: var(--text-dim);
+      color: #6272a4;
+    }
+
+    /* Clear, high-contrast link styling */
+    footer a {
+      color: #8be9fd;
+      /* Dracula cyan or soft accent */
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s ease, border-bottom-color 0.15s ease;
+      border-bottom: 1px dotted rgba(139, 233, 253, 0.4);
+      padding-bottom: 1px;
+    }
+
+    footer a:hover {
+      color: #ff79c6;
+      /* shifts to vivid pink/purple on hover */
+      border-bottom-color: #ff79c6;
+      border-bottom-style: solid;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
@@ -176,8 +193,9 @@
       <span>RsPad</span>
     </div>
     <div class="actions">
-      <button id="btn-run" class="primary">▶ Run (⌘ + Enter)</button>
-      <button id="btn-new">+ New</button>
+      <button id="btn-run" class="primary">Run</button>
+      <button id="btn-download" class="secondary">Download</button>
+      <button id="btn-new">New</button>
     </div>
   </header>
 
@@ -354,6 +372,33 @@
       outputEl.className = '';
       outputEl.textContent = '// Ready.';
       statusLeft.textContent = 'Ready';
+    });
+
+    const downloadBtn = document.getElementById('btn-download');
+
+    downloadBtn.addEventListener('click', () => {
+      if (!editor) return;
+
+      const code = editor.getValue();
+
+      // 1. Create a Blob from the current editor text
+      const blob = new Blob([code], { type: 'text/rust;charset=utf-8' });
+
+      // 2. Generate a temporary object URL
+      const url = URL.createObjectURL(blob);
+
+      // 3. Create an invisible anchor element to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Set the default filename
+      link.download = 'main.rs';
+
+      // 4. Trigger download and cleanup
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     });
   </script>
 </body>
