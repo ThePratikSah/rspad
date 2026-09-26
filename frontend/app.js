@@ -262,14 +262,16 @@ function applyLayout() {
   }
 
   // 3. Update buttons, labels, and icons
-  if (dockBtn && dockBtnLabel && dockIconWrapper) {
-    if (isRight) {
-      dockIconWrapper.innerHTML = ICON_DOCK_BOTTOM;
-      dockBtn.title = 'Dock terminal to bottom';
-    } else {
-      dockIconWrapper.innerHTML = ICON_DOCK_RIGHT;
-      dockBtn.title = 'Dock terminal to right';
+  if (dockBtn) {
+    const dockLabel = document.getElementById('dock-btn-label') || dockBtn.querySelector('.btn-label');
+    if (dockLabel) {
+      dockLabel.textContent = isRight ? 'Dock Bottom' : 'Dock Right';
     }
+    const dockIcon = document.getElementById('dock-icon-wrapper');
+    if (dockIcon) {
+      dockIcon.innerHTML = isRight ? ICON_DOCK_BOTTOM : ICON_DOCK_RIGHT;
+    }
+    dockBtn.title = isRight ? 'Dock terminal to bottom' : 'Dock terminal to right';
   }
 
   if (panelDockBtn && panelDockIconWrapper) {
@@ -277,16 +279,24 @@ function applyLayout() {
     panelDockBtn.title = isRight ? 'Dock terminal to bottom' : 'Dock terminal to right';
   }
 
-  if (toggleTerminalBtn && toggleTerminalLabel && toggleTerminalIconWrapper) {
+  if (toggleTerminalBtn) {
+    const labelText = config.visible ? 'Hide Terminal' : 'Show Terminal';
+    const labelEl = document.getElementById('toggle-terminal-label') || toggleTerminalBtn.querySelector('.btn-label');
+    if (labelEl) {
+      labelEl.textContent = labelText;
+    } else {
+      toggleTerminalBtn.textContent = labelText;
+    }
+
+    const iconWrapper = document.getElementById('toggle-terminal-icon-wrapper');
+    if (iconWrapper) {
+      iconWrapper.innerHTML = config.visible ? ICON_TERMINAL_VISIBLE : ICON_TERMINAL_HIDDEN;
+    }
+
+    toggleTerminalBtn.title = config.visible ? 'Hide terminal' : 'Show terminal';
     if (config.visible) {
-      toggleTerminalIconWrapper.innerHTML = ICON_TERMINAL_VISIBLE;
-      toggleTerminalLabel.textContent = 'Hide Terminal';
-      toggleTerminalBtn.title = 'Hide terminal';
       toggleTerminalBtn.classList.remove('active');
     } else {
-      toggleTerminalIconWrapper.innerHTML = ICON_TERMINAL_HIDDEN;
-      toggleTerminalLabel.textContent = 'Show Terminal';
-      toggleTerminalBtn.title = 'Show terminal';
       toggleTerminalBtn.classList.add('active');
     }
   }
