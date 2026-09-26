@@ -5,184 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RustPad</title>
-  <style>
-    :root {
-      --bg-base: #1e1e24;
-      --bg-surface: #282a36;
-      --border-color: #383a4c;
-      --accent: #bd93f9;
-      --accent-hover: #ff79c6;
-      --text-main: #f8f8f2;
-      --text-dim: #6272a4;
-      --terminal-bg: #191a21;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-base);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      overflow: hidden;
-    }
-
-    /* Top Navigation */
-    header {
-      height: 48px;
-      background: var(--bg-surface);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      border-bottom: 1px solid var(--border-color);
-      user-select: none;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .brand-icon {
-      font-size: 16px;
-    }
-
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    button {
-      background: #44475a;
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 6px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    button:hover {
-      background: #6272a4;
-      color: #fff;
-    }
-
-    button.primary {
-      background: var(--accent);
-      color: #282a36;
-      border-color: var(--accent);
-    }
-
-    button.primary:hover {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-    }
-
-    /* Split Workspace */
-    .workspace {
-      display: flex;
-      flex: 1;
-      height: calc(100vh - 72px);
-    }
-
-    .panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .panel-header {
-      height: 28px;
-      background: var(--bg-base);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-dim);
-      user-select: none;
-    }
-
-    #editor-container {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-    }
-
-    .output-panel {
-      border-left: 1px solid var(--border-color);
-      background: var(--terminal-bg);
-    }
-
-    #output {
-      flex: 1;
-      padding: 16px;
-      font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
-      font-size: 13px;
-      line-height: 1.5;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      color: #8be9fd;
-    }
-
-    #output.error {
-      color: #ff5555;
-    }
-
-    #output.success {
-      color: #50fa7b;
-    }
-
-    footer {
-      height: 24px;
-      background: #191a21;
-      border-top: 1px solid var(--border-color, #383a4c);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
-      font-size: 11px;
-      color: #6272a4;
-    }
-
-    /* Clear, high-contrast link styling */
-    footer a {
-      color: #8be9fd;
-      /* Dracula cyan or soft accent */
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.15s ease, border-bottom-color 0.15s ease;
-      border-bottom: 1px dotted rgba(139, 233, 253, 0.4);
-      padding-bottom: 1px;
-    }
-
-    footer a:hover {
-      color: #ff79c6;
-      /* shifts to vivid pink/purple on hover */
-      border-bottom-color: #ff79c6;
-      border-bottom-style: solid;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
 </head>
 
@@ -193,19 +16,41 @@
       <span>RsPad</span>
     </div>
     <div class="actions">
-      <button id="btn-run" class="primary">Run</button>
-      <button id="btn-download" class="secondary">Download</button>
-      <button id="btn-new">New</button>
+      <button id="btn-run" class="primary" title="Execute Rust code (⌘+Enter / Ctrl+Enter)">
+        <span class="btn-label">Run</span>
+      </button>
+      <button id="btn-download" class="secondary" title="Download">
+        <span class="btn-label">Download</span>
+      </button>
+      <button id="btn-toggle-terminal" class="secondary" title="Toggle terminal visibility">
+        <span id="toggle-terminal-label" class="btn-label">Hide Terminal</span>
+      </button>
+      <button id="btn-new" title="New boilerplate">
+        <span class="btn-label">New Pad</span>
+      </button>
     </div>
   </header>
 
-  <div class="workspace">
-    <div class="panel">
-      <div class="panel-header">Source (main.rs)</div>
+  <div class="workspace dock-right" id="workspace">
+    <div class="panel editor-panel" id="editor-panel">
       <div id="editor-container"></div>
     </div>
-    <div class="panel output-panel">
-      <div class="panel-header">Terminal Output</div>
+    <div class="resizer" id="resizer" title="Drag to adjust size (drag to edge to minimize)"></div>
+    <div class="panel output-panel" id="output-panel">
+      <div class="panel-header">
+        <span>Terminal Output</span>
+        <div class="panel-header-actions">
+          <button id="panel-btn-dock" class="panel-header-btn" title="Toggle dock position">
+            <span id="panel-dock-icon-wrapper"></span>
+          </button>
+          <button id="panel-btn-minimize" class="panel-header-btn" title="Minimize terminal">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </div>
       <pre id="output">// Press Run or hit ⌘+Enter to execute.</pre>
     </div>
   </div>
@@ -218,189 +63,7 @@
       </a></div>
   </footer>
 
-  <script>
-    let editor;
-    const DEFAULT_CODE = `fn main() {
-    let message = "Hello from RustPad!";
-    println!("{}", message);
-}`;
-
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
-
-    require(['vs/editor/editor.main'], function () {
-      // 1. Define Modern Dracula Dark Theme
-      monaco.editor.defineTheme('dracula-custom', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-          { token: 'comment', foreground: '6272a4', fontStyle: 'italic' },
-          { token: 'keyword', foreground: 'ff79c6', fontStyle: 'bold' },
-          { token: 'string', foreground: 'f1fa8c' },
-          { token: 'number', foreground: 'bd93f9' },
-          { token: 'type', foreground: '8be9fd' },
-          { token: 'identifier', foreground: 'f8f8f2' }
-        ],
-        colors: {
-          'editor.background': '#282a36',
-          'editor.foreground': '#f8f8f2',
-          'editorLineNumber.foreground': '#6272a4',
-          'editorCursor.foreground': '#f8f8f2',
-          'editor.selectionBackground': '#44475a',
-          'editor.lineHighlightBackground': '#44475a55'
-        }
-      });
-
-      // 2. Add Built-in Rust Autocomplete & Snippet Provider
-      monaco.languages.registerCompletionItemProvider('rust', {
-        provideCompletionItems: (model, position) => {
-          const suggestions = [
-            // Standard Macros
-            {
-              label: 'println!',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'println!("${1:format}", ${2:args});',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Prints to the standard output, with a newline.'
-            },
-            {
-              label: 'eprintln!',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'eprintln!("${1:format}", ${2:args});',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Prints to the standard error, with a newline.'
-            },
-            {
-              label: 'vec!',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'vec![${1:items}]',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Creates a `Vec` containing the arguments.'
-            },
-            // Structures & Boilerplates
-            {
-              label: 'fn',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'fn ${1:name}(${2:params}) -> ${3:ReturnType} {\n\t${4:todo!()}\n}',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Function declaration'
-            },
-            {
-              label: 'struct',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'struct ${1:Name} {\n\t${2:field}:${3:Type},\n}',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Struct declaration'
-            },
-            {
-              label: 'impl',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: 'impl ${1:Type} {\n\t${2}\n}',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Implementation block'
-            },
-            {
-              label: 'derive',
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              insertText: '#[derive(${1:Debug, Clone})]',
-              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: 'Automatic trait derivation'
-            },
-            // Common types
-            { label: 'String', kind: monaco.languages.CompletionItemKind.Class, insertText: 'String' },
-            { label: 'Option', kind: monaco.languages.CompletionItemKind.Enum, insertText: 'Option<${1:T}>', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet },
-            { label: 'Result', kind: monaco.languages.CompletionItemKind.Enum, insertText: 'Result<${1:T},${2:E}>', insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet },
-            { label: 'HashMap', kind: monaco.languages.CompletionItemKind.Class, insertText: 'std::collections::HashMap' }
-          ];
-          return { suggestions };
-        }
-      });
-
-      // 3. Initialize Monaco
-      editor = monaco.editor.create(document.getElementById('editor-container'), {
-        value: DEFAULT_CODE,
-        language: 'rust',
-        theme: 'dracula-custom',
-        automaticLayout: true,
-        fontSize: 13,
-        fontFamily: '"JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace',
-        fontLigatures: true,
-        tabSize: 4,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        padding: { top: 12, bottom: 12 }
-      });
-
-      // Run Shortcut (Cmd+Enter / Ctrl+Enter)
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runCode);
-    });
-
-    const outputEl = document.getElementById('output');
-    const statusLeft = document.getElementById('status-left');
-    const runBtn = document.getElementById('btn-run');
-    const newBtn = document.getElementById('btn-new');
-
-    async function runCode() {
-      if (!editor) return;
-      outputEl.className = '';
-      outputEl.textContent = 'Compiling and executing...';
-      statusLeft.textContent = 'Compiling...';
-
-      const start = performance.now();
-
-      try {
-        const res = await fetch('/api/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: editor.getValue() }),
-        });
-        const data = await res.json();
-        const duration = ((performance.now() - start) / 1000).toFixed(2);
-
-        outputEl.className = data.success ? 'success' : 'error';
-        outputEl.textContent = data.output || '(No output produced)';
-        statusLeft.textContent = data.success ? `Success (${duration}s)` : `Failed (${duration}s)`;
-      } catch (err) {
-        outputEl.className = 'error';
-        outputEl.textContent = `Server error: ${err.message}`;
-        statusLeft.textContent = 'Server Error';
-      }
-    }
-
-    runBtn.addEventListener('click', runCode);
-    newBtn.addEventListener('click', () => {
-      editor.setValue(DEFAULT_CODE);
-      outputEl.className = '';
-      outputEl.textContent = '// Ready.';
-      statusLeft.textContent = 'Ready';
-    });
-
-    const downloadBtn = document.getElementById('btn-download');
-
-    downloadBtn.addEventListener('click', () => {
-      if (!editor) return;
-
-      const code = editor.getValue();
-
-      // 1. Create a Blob from the current editor text
-      const blob = new Blob([code], { type: 'text/rust;charset=utf-8' });
-
-      // 2. Generate a temporary object URL
-      const url = URL.createObjectURL(blob);
-
-      // 3. Create an invisible anchor element to trigger the download
-      const link = document.createElement('a');
-      link.href = url;
-
-      // Set the default filename
-      link.download = 'main.rs';
-
-      // 4. Trigger download and cleanup
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 
 </html>

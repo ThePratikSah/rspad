@@ -1,0 +1,344 @@
+:root {
+  --bg-base: #1e1e24;
+  --bg-surface: #282a36;
+  --border-color: #383a4c;
+  --accent: #bd93f9;
+  --accent-hover: #ff79c6;
+  --text-main: #f8f8f2;
+  --text-dim: #6272a4;
+  --terminal-bg: #191a21;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Top Navigation */
+header {
+  height: 48px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.brand-icon {
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button {
+  background: #44475a;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button:hover {
+  background: #6272a4;
+  color: #fff;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #282a36;
+  border-color: var(--accent);
+}
+
+button.primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+button.active {
+  background: #6272a4;
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Split Workspace */
+.workspace {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 72px);
+  overflow: hidden;
+  position: relative;
+}
+
+.workspace.dock-right {
+  flex-direction: row;
+}
+
+.workspace.dock-bottom {
+  flex-direction: column;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-panel {
+  flex: 1 1 0%;
+  min-width: 120px;
+  min-height: 100px;
+}
+
+.output-panel {
+  background: var(--terminal-bg);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.workspace.dock-right .output-panel {
+  border-left: 1px solid var(--border-color);
+  border-top: none;
+  height: 100%;
+  max-width: calc(100% - 120px);
+}
+
+.workspace.dock-bottom .output-panel {
+  border-top: 1px solid var(--border-color);
+  border-left: none;
+  width: 100%;
+  max-height: calc(100% - 100px);
+}
+
+.output-panel.hidden {
+  display: none !important;
+}
+
+/* Draggable Resizer */
+.resizer {
+  background: var(--border-color);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+  touch-action: none;
+}
+
+.workspace.dock-right .resizer {
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+.workspace.dock-right .resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+  z-index: 1;
+}
+
+.workspace.dock-bottom .resizer {
+  height: 5px;
+  width: 100%;
+  cursor: row-resize;
+}
+
+.workspace.dock-bottom .resizer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -4px;
+  bottom: -4px;
+  z-index: 1;
+}
+
+.resizer:hover,
+.resizer.dragging {
+  background: var(--accent);
+}
+
+/* Resizer Grip Indicator */
+.resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--text-dim);
+  border-radius: 2px;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.workspace.dock-right .resizer::after {
+  width: 3px;
+  height: 22px;
+}
+
+.workspace.dock-bottom .resizer::after {
+  width: 22px;
+  height: 3px;
+}
+
+.resizer:hover::after,
+.resizer.dragging::after {
+  background: #ffffff;
+  opacity: 0.9;
+}
+
+.resizer.hidden {
+  display: none !important;
+}
+
+/* Dragging state applied to body */
+body.is-resizing {
+  user-select: none !important;
+}
+
+body.is-resizing.dock-right,
+body.is-resizing.dock-right * {
+  cursor: col-resize !important;
+}
+
+body.is-resizing.dock-bottom,
+body.is-resizing.dock-bottom * {
+  cursor: row-resize !important;
+}
+
+body.is-resizing #editor-container,
+body.is-resizing #output {
+  pointer-events: none !important;
+}
+
+.panel-header {
+  height: 28px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-header-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.panel-header-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+#editor-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+#output {
+  flex: 1;
+  padding: 16px;
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #8be9fd;
+}
+
+#output.error {
+  color: #ff5555;
+}
+
+#output.success {
+  color: #50fa7b;
+}
+
+footer {
+  height: 24px;
+  background: #191a21;
+  border-top: 1px solid var(--border-color, #383a4c);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 11px;
+  color: #6272a4;
+}
+
+/* Clear, high-contrast link styling */
+footer a {
+  color: #8be9fd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+  border-bottom: 1px dotted rgba(139, 233, 253, 0.4);
+  padding-bottom: 1px;
+}
+
+footer a:hover {
+  color: #ff79c6;
+  border-bottom-color: #ff79c6;
+  border-bottom-style: solid;
+}
